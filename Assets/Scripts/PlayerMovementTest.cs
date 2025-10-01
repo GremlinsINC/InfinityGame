@@ -1,49 +1,54 @@
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 public class PlayerMovementTest : MonoBehaviour
 {
-    public float speed = 5f; // Horizontal movement speed
-    public float jumpForce = 10f; // Jump force
-    public LayerMask groundLayer; // Layer to check for ground
-    public Transform groundCheck; // Transform to check if the player is grounded
-    public float groundCheckRadius = 0.2f; // Radius for ground checking
+    private float horizontal;
+    [SerializeField] private float speed = 8f;
+    [SerializeField] private float jumpingPower = 16f;
+    private bool isFacingRight = true;
 
     private Rigidbody2D rb;
-    private bool isGrounded;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private LayerMask groundLayer;
 
-    void Start()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
     void Update()
     {
-        Move();
-        Jump();
-    }
-
-    void Move()
-    {
-        float moveInput = Input.GetAxis("Horizontal"); // Gets input for horizontal movement
-        rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y); // Set horizontal linearVelocity
-    }
-
-    void Jump()
-    {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer); // Check if grounded
-
-        if (Input.GetButtonDown("Jump") && isGrounded) // Listen for jump input
+        horizontal = Input.GetAxisRaw("Horizontal");
+        if (Input.GetButtonDown("Jump") && isGrounded())
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce); // Apply jump force
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpingPower);
+        }
+        if (Input.GetButtonUp("Jump") && rb.linearVelocity.y > 0f)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
         }
     }
 
-    private void OnDrawGizmosSelected()
+    private void Flip()
     {
-        if (groundCheck != null)
+        if (isFacingRight && horizontal <= 0f || !isFacingRight && horizontal > 0f)
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius); // Visualize ground check
+            isFacingRight = !isFacingRight;
+            Vector3 localScale = transform.localScale;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
         }
+    }
+
+    private bool isGrounded()
+    {
+        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    }
+
+    void FixedUpdate()
+    {
+        rb.linearVelocity = new Vector2(horizontal * speed, rb.linearVelocity.y);
     }
 }

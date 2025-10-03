@@ -4,19 +4,19 @@ public class BaseMobsBehavior : MonoBehaviour
 {
 
   [Header("Movement Settings")]
-  public float speed = 2f;
-  public float waitTime = 2f;
-  public Transform[] patrolPoints;
+  [SerializeField] protected float speed = 2f;
+  [SerializeField] protected float waitTime = 2f;
+  [SerializeField] protected Transform[] patrolPoints;
 
-  private int currentPatrolIndex = 0;
-  private float waitCounter = 0;
-  private bool isWaiting = false;
+  protected int currentPatrolIndex = 0;
+  protected float waitCounter = 0;
+  protected bool isWaiting = false;
 
-  private Rigidbody2D rb;
-  private SpriteRenderer spriteRenderer;
+  protected Rigidbody2D rb;
+  protected SpriteRenderer spriteRenderer;
 
 
-  void Start()
+  protected void Start()
   {
     rb = GetComponent<Rigidbody2D>();
     spriteRenderer = GetComponent<SpriteRenderer>();
@@ -26,7 +26,7 @@ public class BaseMobsBehavior : MonoBehaviour
     }
   }
 
-  void Update()
+  protected virtual void Update()
   {
     if(isWaiting) {
 
@@ -40,7 +40,7 @@ public class BaseMobsBehavior : MonoBehaviour
     FlipSprite(rb.linearVelocity);
   }
 
-  void MoveToPoint(Transform targetPoint){
+  protected void MoveToPoint(Transform targetPoint){
 
     Vector2 direction = (targetPoint.position - transform.position).normalized;
     Vector2 velocity = direction * speed;
@@ -48,7 +48,7 @@ public class BaseMobsBehavior : MonoBehaviour
     rb.linearVelocity = velocity;
   }
 
-  void FlipSprite(Vector2 velocity){
+  protected void FlipSprite(Vector2 velocity){
 
     if (velocity.x > 0.01f){
       spriteRenderer.flipX = false;
@@ -57,7 +57,7 @@ public class BaseMobsBehavior : MonoBehaviour
     }
   }
 
-  void Wait(){
+  protected void Wait(){
     waitCounter -= Time.deltaTime;
     if(waitCounter <= 0){
       isWaiting = false;
